@@ -22,9 +22,9 @@ void ExecuteHelp()
 {
     printf("\nCommands available:\n");
     printf("--------------------------------------------------------\n\n");
-    printf("history: prints the command history of the current session \n");
-    printf("clear: clears the terminal \n");
-    printf("cd: changes the path to a particular directory \n");
+    printf("history: prints the command history of the current session \n");        // 
+    printf("clear: clears the terminal \n");                                        // 
+    printf("cd: changes the path to a particular directory \n");                    //
     printf("pwd: prints the path of the current directory \n");
     printf("ls: lists all files and directories in the current directory \n");
     printf("touch: creates a new empty file \n");
@@ -32,8 +32,8 @@ void ExecuteHelp()
     printf("cp: copies the content of a file to another file \n");
     printf("makedir: creates a new directory \n");
     printf("removedir: deletes an already existing directory \n");
-    printf("echo: displays a string that is passed as an argument\n");
-    printf("quit: exits the shell \n");
+    printf("echo: displays a string that is passed as an argument\n");              //
+    printf("quit: exits the shell \n");                                             //
 
     printf("\n-----------------------------------------------------\n\n");
 }
@@ -51,6 +51,14 @@ void ExecuteHistory()
         printf("%s", shellHistory[i]);
 }
 
+void ExecuteCd(char *folder)
+{
+    if(chdir(folder))
+    {
+        error_code = 2;
+    }
+}
+
 void ExecuteCommands(char **command, int *nrArgs)
 {
     if (!strcmp(command[0], "clear"))
@@ -59,34 +67,60 @@ void ExecuteCommands(char **command, int *nrArgs)
         {
             error_code = 1; // too many args
         }
-        printf("\33[H\33[2J");
+        else
+            printf("\33[H\33[2J");
     }
     else
     {
         if (!strcmp(command[0], "quit"))
         {
-            if (nrArgs)
+            if (*nrArgs)
                 error_code = 1;
-            RUN = false;
+            else
+                RUN = false;
         }
         else
         {
             if (!strcmp(command[0], "help"))
             {
-                if (nrArgs)
+                if (*nrArgs)
                     error_code = 1;
-                ExecuteHelp();
+                else
+                    ExecuteHelp();
             }
             else
             {
                 if (!strcmp(command[0], "echo"))
                 {
-                    ExecuteEcho(command, nrArgs);
+                    if(!*nrArgs)
+                        error_code = 1;
+                    else
+                        ExecuteEcho(command, nrArgs);
                 }
                 else
                 {
                     if (!strcmp(command[0], "history"))
-                        ExecuteHistory();
+                    {
+                        if(*nrArgs)
+                            error_code = 1;
+                        else
+                            ExecuteHistory();
+                    }
+                    else
+                    {
+                        if(!strcmp(command[0], "cd"))
+                        {
+                            if(*nrArgs > 1)
+                                error_code = 1;
+                            else
+                            {
+                                if(*nrArgs)
+                                    ExecuteCd(command[1]);
+                                else
+                                    ExecuteCd("..");
+                            }
+                        }
+                    }
                 }
             }
         }
